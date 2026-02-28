@@ -1,0 +1,64 @@
+@model AddressVm
+@{
+    ViewData["Title"] = "Add Address";
+}
+
+<nav aria-label="breadcrumb" class="mb-4">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a asp-action="Index" class="text-decoration-none">My Addresses</a></li>
+        <li class="breadcrumb-item active">Add New</li>
+    </ol>
+</nav>
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-transparent border-bottom">
+                <h4 class="mb-0 fw-bold"><i class="bi bi-geo-alt me-2 text-primary"></i>Add New Address</h4>
+            </div>
+            <div class="card-body p-4">
+                <form asp-action="Create" method="post">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold"><i class="bi bi-globe me-1"></i>Country</label>
+                            <input asp-for="Country" class="form-control" placeholder="e.g. Egypt" required />
+                            <span asp-validation-for="Country" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold"><i class="bi bi-building me-1"></i>City</label>
+                            <input asp-for="City" class="form-control" placeholder="e.g. Cairo" required />
+                            <span asp-validation-for="City" class="text-danger small"></span>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-semibold"><i class="bi bi-signpost me-1"></i>Street</label>
+                            <input asp-for="Street" class="form-control" placeholder="e.g. 123 Main Street" required />
+                            <span asp-validation-for="Street" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold"><i class="bi bi-mailbox me-1"></i>Zip Code</label>
+                            <input asp-for="Zip" class="form-control" placeholder="e.g. 11511" required />
+                            <span asp-validation-for="Zip" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-8 d-flex align-items-end">
+                            <div class="form-check form-switch">
+                                <input asp-for="IsDefault" class="form-check-input" />
+                                <label class="form-check-label" asp-for="IsDefault">Set as default address</label>
+                            </div>
+                        </div>
+                    </div>
+                    <hr class="my-4" />
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary rounded-pill px-4">
+                            <i class="bi bi-check-circle me-2"></i>Save Address
+                        </button>
+                        <a class="btn btn-outline-secondary rounded-pill px-4" asp-action="Index">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Admin</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/EcommerceIti.Web.styles.css" asp-append-version="true" />
+    <style>
+        .admin-sidebar {
+            min-height: calc(100vh - 60px);
+            background: linear-gradient(180deg, #1a1d23 0%, #2d3239 100%);
+            transition: width 0.3s ease;
+        }
+        .admin-sidebar .nav-link {
+            color: #8b929a;
+            padding: .65rem 1rem;
+            border-radius: .5rem;
+            margin-bottom: 2px;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+        }
+        .admin-sidebar .nav-link:hover {
+            color: #fff;
+            background-color: rgba(255,255,255,.08);
+            transform: translateX(4px);
+        }
+        .admin-sidebar .nav-link.active {
+            color: #fff;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+        .admin-sidebar .nav-link i {
+            width: 20px;
+            text-align: center;
+        }
+        .admin-sidebar .sidebar-header {
+            color: #555a60;
+            font-size: .7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .1em;
+            padding: 1rem 1rem .4rem;
+        }
+        .admin-topbar {
+            background: #fff;
+            border-bottom: 1px solid #e9ecef;
+            box-shadow: 0 1px 3px rgba(0,0,0,.05);
+        }
+        .admin-content {
+            background-color: #f5f7fa;
+            min-height: calc(100vh - 60px);
+        }
+    </style>
+</head>
+<body>
+    <!-- Top Navbar -->
+    <nav class="admin-topbar navbar navbar-expand px-4" style="height: 60px;">
+        <div class="d-flex align-items-center w-100">
+            <a class="navbar-brand fw-bold text-dark me-4" asp-area="Admin" asp-controller="Home" asp-action="Index">
+                <span style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                    <i class="bi bi-speedometer2 me-2"></i>Admin Panel
+                </span>
+            </a>
+            <div class="ms-auto d-flex align-items-center gap-3">
+                <a class="btn btn-sm btn-outline-secondary rounded-pill" asp-area="" asp-controller="Home" asp-action="Index">
+                    <i class="bi bi-box-arrow-up-left me-1"></i>View Site
+                </a>
+                <partial name="_LoginPartial" />
+            </div>
+        </div>
+    </nav>
+
+    <div class="d-flex">
+        <!-- Sidebar -->
+        <nav class="admin-sidebar d-flex flex-column p-3" style="width: 250px; flex-shrink: 0;">
+            <div class="sidebar-header">Main</div>
+            <a class="nav-link" asp-area="Admin" asp-controller="Home" asp-action="Index">
+                <i class="bi bi-speedometer2 me-2"></i>Dashboard
+            </a>
+
+            <div class="sidebar-header mt-3">Catalog</div>
+            <a class="nav-link" asp-area="Admin" asp-controller="Categories" asp-action="Index">
+                <i class="bi bi-tags me-2"></i>Categories
+            </a>
+            <a class="nav-link" asp-area="Admin" asp-controller="Products" asp-action="Index">
+                <i class="bi bi-box-seam me-2"></i>Products
+            </a>
+
+            <div class="sidebar-header mt-3">Sales</div>
+            <a class="nav-link" asp-area="Admin" asp-controller="Orders" asp-action="Index">
+                <i class="bi bi-receipt me-2"></i>Orders
+            </a>
+        </nav>
+
+        <!-- Main Content -->
+        <div class="admin-content flex-grow-1 p-4">
+            @RenderBody()
+        </div>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

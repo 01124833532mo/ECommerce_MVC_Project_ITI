@@ -1,0 +1,24 @@
+@model CategoryVm
+@{
+    var categories = (IEnumerable<CategoryVm>?)ViewBag.Categories ?? Enumerable.Empty<CategoryVm>();
+}
+
+<div asp-validation-summary="ModelOnly" class="alert alert-danger" style="display: none;"></div>
+
+<div class="mb-3">
+    <label asp-for="Name" class="form-label fw-semibold"><i class="bi bi-type me-1"></i>Name</label>
+    <input asp-for="Name" class="form-control" placeholder="Enter category name" />
+    <span asp-validation-for="Name" class="text-danger small"></span>
+</div>
+
+<div class="mb-3">
+    <label asp-for="ParentCategoryId" class="form-label fw-semibold"><i class="bi bi-diagram-3 me-1"></i>Parent Category</label>
+    <select asp-for="ParentCategoryId" class="form-select">
+        <option value="">(No parent - top level)</option>
+        @foreach (var cat in categories)
+        {
+            <option value="@cat.CategoryId">@cat.Name</option>
+        }
+    </select>
+    <span asp-validation-for="ParentCategoryId" class="text-danger small"></span>
+</div>

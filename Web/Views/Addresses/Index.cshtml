@@ -1,0 +1,52 @@
+@model IList<AddressVm>
+@{
+    ViewData["Title"] = "My Addresses";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold mb-0"><i class="bi bi-geo-alt me-2 text-primary"></i>My Addresses</h2>
+    <a class="btn btn-primary rounded-pill" asp-action="Create">
+        <i class="bi bi-plus-circle me-2"></i>Add Address
+    </a>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="card border-0 shadow-sm">
+        <div class="card-body text-center py-5">
+            <i class="bi bi-geo-alt display-1 text-muted mb-3"></i>
+            <h4 class="text-muted">No addresses saved</h4>
+            <p class="text-muted mb-4">Add a shipping address to get started.</p>
+            <a class="btn btn-primary rounded-pill px-4" asp-action="Create">
+                <i class="bi bi-plus-circle me-2"></i>Add Your First Address
+            </a>
+        </div>
+    </div>
+}
+else
+{
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 mb-4">
+        @foreach (var addr in Model)
+        {
+            <div class="col">
+                <div class="card border-0 shadow-sm h-100 @(addr.IsDefault ? "border-start border-primary border-3" : "")">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <i class="bi bi-geo-alt-fill text-primary fs-4"></i>
+                            @if (addr.IsDefault)
+                            {
+                                <span class="badge bg-success bg-opacity-10 text-success">Default</span>
+                            }
+                        </div>
+                        <h6 class="fw-bold">@addr.Street</h6>
+                        <p class="text-muted mb-0">@addr.City, @addr.Country @addr.Zip</p>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+<a class="btn btn-outline-secondary rounded-pill" asp-controller="Orders" asp-action="Checkout">
+    <i class="bi bi-arrow-left me-2"></i>Back to Checkout
+</a>
