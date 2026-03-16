@@ -1,6 +1,7 @@
 using EcommerceIti.Application.Interfaces;
 using EcommerceIti.Application.ViewModels;
 using EcommerceIti.Web.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EcommerceIti.Web.Controllers;
@@ -23,8 +24,15 @@ public class CartController : Controller
     }
 
     [HttpPost]
+    [AllowAnonymous]
     public async Task<IActionResult> Add(int productId, int quantity = 1)
     {
+        if (User.Identity?.IsAuthenticated != true)
+        {
+            var returnUrl = Url.Action("Details", "Catalog", new { id = productId }) ?? Url.Action("Index", "Catalog")!;
+            return RedirectToPage("/Account/Login", new { area = "Identity", returnUrl });
+        }
+
         var product = await _productService.GetDetailsAsync(productId);
         if (product == null || !product.IsActive)
         {
@@ -39,6 +47,7 @@ public class CartController : Controller
             {
                 ProductId = productId,
                 Name = product.Name,
+                ImageUrl = product.ImageUrl,
                 Price = product.Price,
                 Quantity = quantity,
                 LineTotal = product.Price * quantity
@@ -55,6 +64,7 @@ public class CartController : Controller
     }
 
     [HttpPost]
+    [Authorize]
     public IActionResult Update(int productId, int quantity)
     {
         var cart = _cartSession.GetCart();
@@ -69,6 +79,7 @@ public class CartController : Controller
     }
 
     [HttpPost]
+    [Authorize]
     public IActionResult Remove(int productId)
     {
         var cart = _cartSession.GetCart();

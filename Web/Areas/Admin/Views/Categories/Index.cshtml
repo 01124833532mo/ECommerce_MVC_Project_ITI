@@ -13,6 +13,12 @@
     </a>
 </div>
 
+@if (TempData["StatusMessage"] is string statusMessage)
+{
+    var statusType = TempData["StatusType"] as string ?? "success";
+    <div class="alert alert-@statusType border-0 shadow-sm">@statusMessage</div>
+}
+
 @if (!Model.Any())
 {
     <div class="card border-0 shadow-sm">

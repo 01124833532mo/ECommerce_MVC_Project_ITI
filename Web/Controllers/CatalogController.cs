@@ -1,5 +1,6 @@
 using EcommerceIti.Application.Interfaces;
 using EcommerceIti.Application.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EcommerceIti.Web.Controllers;
@@ -15,6 +16,7 @@ public class CatalogController : Controller
         _categoryService = categoryService;
     }
 
+    [AllowAnonymous]
     public async Task<IActionResult> Index(int? categoryId, string? q, string? sort, int page = 1)
     {
         var query = new ProductListQuery(categoryId, q, sort, page, 12);
@@ -23,6 +25,7 @@ public class CatalogController : Controller
         return View(vm);
     }
 
+    [AllowAnonymous]
     public async Task<IActionResult> Details(int id)
     {
         var vm = await _productService.GetDetailsAsync(id);

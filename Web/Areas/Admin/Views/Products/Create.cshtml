@@ -17,7 +17,7 @@
                 <h4 class="mb-0 fw-bold"><i class="bi bi-plus-circle me-2 text-primary"></i>New Product</h4>
             </div>
             <div class="card-body p-4">
-                <form asp-action="Create" method="post">
+                <form asp-action="Create" method="post" enctype="multipart/form-data">
                     <partial name="_Form" model="Model" />
                     <hr class="my-4" />
                     <div class="d-flex gap-2">

@@ -1,8 +1,11 @@
 using EcommerceIti.Application.Interfaces;
+using EcommerceIti.Application.Models;
 using EcommerceIti.Application.ViewModels;
+using EcommerceIti.Application.Exceptions;
 using EcommerceIti.Domain.Entities;
 using EcommerceIti.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Data.SqlClient;
 
 namespace EcommerceIti.Infrastructure.Services;
 
@@ -49,7 +52,7 @@ public class ProductService : IProductService
         var items = await baseQuery
             .Skip((query.Page - 1) * query.PageSize)
             .Take(query.PageSize)
-            .Select(p => new ProductListItemVm(p.ProductId, p.Name, p.SKU, p.Price, p.StockQuantity, p.IsActive, p.Category.Name))
+            .Select(p => new ProductListItemVm(p.ProductId, p.Name, p.SKU, p.Price, p.ImageUrl, p.StockQuantity, p.IsActive, p.Category.Name))
             .ToListAsync();
 
         return new ProductListVm
@@ -75,6 +78,7 @@ public class ProductService : IProductService
                 Name = p.Name,
                 SKU = p.SKU,
                 Price = p.Price,
+                ImageUrl = p.ImageUrl,
                 StockQuantity = p.StockQuantity,
                 IsActive = p.IsActive,
                 CreatedAt = p.CreatedAt,
@@ -94,32 +98,65 @@ public class ProductService : IProductService
                 Name = p.Name,
                 SKU = p.SKU,
                 Price = p.Price,
+                ImageUrl = p.ImageUrl,
                 StockQuantity = p.StockQuantity,
                 IsActive = p.IsActive
             })
             .FirstOrDefaultAsync();
     }
 
+    public async Task<bool> IsSkuInUseAsync(string sku, int? productId = null)
+    {
+        var normalizedSku = sku.Trim();
+
+        return await _context.Products.AnyAsync(p =>
+            p.SKU == normalizedSku &&
+            (!productId.HasValue || p.ProductId != productId.Value));
+    }
+
     public async Task<int> CreateAsync(ProductEditVm vm)
     {
+        vm.SKU = vm.SKU.Trim();
+
+        if (await IsSkuInUseAsync(vm.SKU))
+        {
+            throw new DuplicateSkuException(vm.SKU);
+        }
+
         var product = new Product
         {
             CategoryId = vm.CategoryId,
             Name = vm.Name,
             SKU = vm.SKU,
             Price = vm.Price,
+            ImageUrl = vm.ImageUrl,
             StockQuantity = vm.StockQuantity,
             IsActive = vm.IsActive,
             CreatedAt = DateTime.UtcNow
         };
 
         _context.Products.Add(product);
-        await _context.SaveChangesAsync();
+        try
+        {
+            await _context.SaveChangesAsync();
+        }
+        catch (DbUpdateException ex) when (IsDuplicateSkuViolation(ex))
+        {
+            throw new DuplicateSkuException(vm.SKU);
+        }
+
         return product.ProductId;
     }
 
     public async Task UpdateAsync(ProductEditVm vm)
     {
+        vm.SKU = vm.SKU.Trim();
+
+        if (await IsSkuInUseAsync(vm.SKU, vm.ProductId))
+        {
+            throw new DuplicateSkuException(vm.SKU);
+        }
+
         var product = await _context.Products.FindAsync(vm.ProductId);
         if (product == null)
         {
@@ -130,20 +167,48 @@ public class ProductService : IProductService
         product.Name = vm.Name;
         product.SKU = vm.SKU;
         product.Price = vm.Price;
+        product.ImageUrl = vm.ImageUrl;
         product.StockQuantity = vm.StockQuantity;
         product.IsActive = vm.IsActive;
-        await _context.SaveChangesAsync();
+
+        try
+        {
+            await _context.SaveChangesAsync();
+        }
+        catch (DbUpdateException ex) when (IsDuplicateSkuViolation(ex))
+        {
+            throw new DuplicateSkuException(vm.SKU);
+        }
     }
 
-    public async Task DeleteAsync(int id)
+    public async Task<ProductDeleteResult> DeleteAsync(int id)
     {
-        var product = await _context.Products.FindAsync(id);
+        var product = await _context.Products
+            .Include(p => p.OrderItems)
+            .FirstOrDefaultAsync(p => p.ProductId == id);
+
         if (product == null)
         {
-            return;
+            return ProductDeleteResult.NotFound;
+        }
+
+        if (product.OrderItems.Count > 0)
+        {
+            product.IsActive = false;
+            product.StockQuantity = 0;
+            await _context.SaveChangesAsync();
+            return ProductDeleteResult.Deactivated;
         }
 
         _context.Products.Remove(product);
         await _context.SaveChangesAsync();
+        return ProductDeleteResult.Deleted;
+    }
+
+    private static bool IsDuplicateSkuViolation(DbUpdateException exception)
+    {
+        return exception.InnerException is SqlException sqlException
+            && (sqlException.Number == 2601 || sqlException.Number == 2627)
+            && sqlException.Message.Contains("IX_Products_SKU", StringComparison.OrdinalIgnoreCase);
     }
 }

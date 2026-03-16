@@ -1,4 +1,5 @@
 using EcommerceIti.Application.Interfaces;
+using EcommerceIti.Application.Models;
 using EcommerceIti.Application.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -81,7 +82,20 @@ public class CategoriesController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(int id)
     {
-        await _categoryService.DeleteAsync(id);
+        var result = await _categoryService.DeleteAsync(id);
+
+        TempData["StatusMessage"] = result switch
+        {
+            CategoryDeleteResult.Deleted => "Category deleted successfully.",
+            CategoryDeleteResult.HasChildCategories => "This category has child categories. Delete or move them first.",
+            CategoryDeleteResult.HasOrderedProducts => "This category contains products used in previous orders, so it cannot be deleted.",
+            _ => "Category was not found."
+        };
+
+        TempData["StatusType"] = result is CategoryDeleteResult.HasChildCategories or CategoryDeleteResult.HasOrderedProducts
+            ? "warning"
+            : "success";
+
         return RedirectToAction(nameof(Index));
     }
 }

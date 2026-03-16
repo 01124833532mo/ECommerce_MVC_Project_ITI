@@ -14,6 +14,12 @@
     </a>
 </div>
 
+@if (TempData["StatusMessage"] is string statusMessage)
+{
+    var statusType = TempData["StatusType"] as string ?? "success";
+    <div class="alert alert-@statusType border-0 shadow-sm">@statusMessage</div>
+}
+
 <!-- Filters -->
 <div class="card border-0 shadow-sm mb-4">
     <div class="card-body">
@@ -71,7 +77,14 @@ else
                         <td class="ps-4">
                             <div class="d-flex align-items-center">
                                 <div class="rounded-2 bg-light d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
-                                    <i class="bi bi-image text-muted"></i>
+                                    @if (!string.IsNullOrWhiteSpace(product.ImageUrl))
+                                    {
+                                        <img src="@product.ImageUrl" alt="@product.Name" class="img-fluid h-100 w-100 rounded-2" style="object-fit: cover;" />
+                                    }
+                                    else
+                                    {
+                                        <i class="bi bi-image text-muted"></i>
+                                    }
                                 </div>
                                 <span class="fw-semibold">@product.Name</span>
                             </div>

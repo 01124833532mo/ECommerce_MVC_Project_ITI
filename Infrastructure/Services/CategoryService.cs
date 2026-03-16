@@ -1,4 +1,5 @@
 using EcommerceIti.Application.Interfaces;
+using EcommerceIti.Application.Models;
 using EcommerceIti.Application.ViewModels;
 using EcommerceIti.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
@@ -68,15 +69,31 @@ public class CategoryService : ICategoryService
         await _context.SaveChangesAsync();
     }
 
-    public async Task DeleteAsync(int id)
+    public async Task<CategoryDeleteResult> DeleteAsync(int id)
     {
-        var category = await _context.Categories.FindAsync(id);
+        var category = await _context.Categories
+            .Include(c => c.Children)
+            .Include(c => c.Products)
+                .ThenInclude(p => p.OrderItems)
+            .FirstOrDefaultAsync(c => c.CategoryId == id);
+
         if (category == null)
         {
-            return;
+            return CategoryDeleteResult.NotFound;
+        }
+
+        if (category.Children.Count > 0)
+        {
+            return CategoryDeleteResult.HasChildCategories;
+        }
+
+        if (category.Products.Any(p => p.OrderItems.Count > 0))
+        {
+            return CategoryDeleteResult.HasOrderedProducts;
         }
 
         _context.Categories.Remove(category);
         await _context.SaveChangesAsync();
+        return CategoryDeleteResult.Deleted;
     }
 }

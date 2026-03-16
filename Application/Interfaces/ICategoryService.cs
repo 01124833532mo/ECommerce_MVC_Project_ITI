@@ -1,4 +1,5 @@
 using EcommerceIti.Application.ViewModels;
+using EcommerceIti.Application.Models;
 
 namespace EcommerceIti.Application.Interfaces;
 
@@ -8,5 +9,5 @@ public interface ICategoryService
     Task<CategoryVm?> GetByIdAsync(int id);
     Task<int> CreateAsync(CategoryVm vm);
     Task UpdateAsync(CategoryVm vm);
-    Task DeleteAsync(int id);
+    Task<CategoryDeleteResult> DeleteAsync(int id);
 }

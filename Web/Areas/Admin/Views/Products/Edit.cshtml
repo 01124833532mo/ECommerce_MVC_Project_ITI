@@ -17,7 +17,7 @@
                 <h4 class="mb-0 fw-bold"><i class="bi bi-pencil me-2 text-primary"></i>Edit Product</h4>
             </div>
             <div class="card-body p-4">
-                <form asp-action="Edit" method="post">
+                <form asp-action="Edit" method="post" enctype="multipart/form-data">
                     <input type="hidden" asp-for="ProductId" />
                     <partial name="_Form" model="Model" />
                     <hr class="my-4" />

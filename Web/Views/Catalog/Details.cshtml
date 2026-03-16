@@ -1,6 +1,12 @@
 @model ProductDetailsVm
 @{
     ViewData["Title"] = Model.Name;
+    var imageSrc = !string.IsNullOrWhiteSpace(Model.ImageUrl)
+        ? (Model.ImageUrl.StartsWith("http://", StringComparison.OrdinalIgnoreCase)
+            || Model.ImageUrl.StartsWith("https://", StringComparison.OrdinalIgnoreCase)
+            ? Model.ImageUrl
+            : Url.Content($"~/{Model.ImageUrl.TrimStart('/')}"))
+        : null;
 }
 
 <nav aria-label="breadcrumb" class="mb-4">
@@ -16,7 +22,14 @@
             <!-- Product Image Placeholder -->
             <div class="col-md-5">
                 <div class="bg-light rounded-3 d-flex align-items-center justify-content-center" style="height: 350px;">
-                    <i class="bi bi-image display-1 text-muted"></i>
+                    @if (!string.IsNullOrWhiteSpace(imageSrc))
+                    {
+                        <img src="@imageSrc" alt="@Model.Name" class="img-fluid h-100 w-100 rounded-3" style="object-fit: cover;" />
+                    }
+                    else
+                    {
+                        <i class="bi bi-image display-1 text-muted"></i>
+                    }
                 </div>
             </div>
 

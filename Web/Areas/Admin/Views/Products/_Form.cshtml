@@ -40,6 +40,25 @@
         <input asp-for="StockQuantity" class="form-control" type="number" min="0" placeholder="0" />
         <span asp-validation-for="StockQuantity" class="text-danger small"></span>
     </div>
+    <div class="col-12">
+        <label asp-for="ImageUrl" class="form-label fw-semibold"><i class="bi bi-image me-1"></i>Image URL</label>
+        <input asp-for="ImageUrl" class="form-control" placeholder="https://example.com/product.jpg" />
+        <span asp-validation-for="ImageUrl" class="text-danger small"></span>
+    </div>
+    <div class="col-12">
+        <label for="imageFile" class="form-label fw-semibold"><i class="bi bi-upload me-1"></i>Or Upload Image</label>
+        <input id="imageFile" name="imageFile" type="file" class="form-control" accept="image/*" />
+    </div>
+    @if (!string.IsNullOrWhiteSpace(Model.ImageUrl))
+    {
+        var previewSrc = Model.ImageUrl.StartsWith("http://", StringComparison.OrdinalIgnoreCase)
+            || Model.ImageUrl.StartsWith("https://", StringComparison.OrdinalIgnoreCase)
+            ? Model.ImageUrl
+            : Url.Content($"~/{Model.ImageUrl.TrimStart('/')}");
+        <div class="col-12">
+            <img src="@previewSrc" alt="Preview" class="rounded-3 border" style="max-height: 160px; object-fit: cover;" />
+        </div>
+    }
 </div>
 
 <div class="form-check form-switch mt-3">
